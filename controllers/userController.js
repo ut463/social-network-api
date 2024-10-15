@@ -1,4 +1,4 @@
-const { User, Thoughts } = require("../models");
+const { Thoughts, User } = require("../models");
 
 module.exports = {
     async getUsers(req, res) {
@@ -10,19 +10,19 @@ module.exports = {
             res.status(500).json(err);
         }
     },
-    async getSingleUser(req, res) {
+    async getUserbyId(req, res) {
         try {
-        const user = await User.findOne({ _id: req.params.userId }).select(
-            "-__v"
-        );
+            const user = await User.findOne({ _id: req.params.userId }); 
+            if (!userData) {
+                return res.status(404).json({ message: 'No User found with this id!' });
+                
+            };
     
-        if (!user) {
-            return res.status(404).json({ message: "No user with that ID" });
-        }
-    
-        res.json(user);
+            
+            res.status(200).json(userData);
         } catch (err) {
-        res.status(500).json(err);
+            console.log(err);
+            res.status(500).json(err);
         }
     },
     async createUser(req, res) {
@@ -35,13 +35,13 @@ module.exports = {
     },
     async deleteUser(req, res) {
         try {
-        const user = await User.findOneAndDelete({ _id: req.params.userId });
+            const user = await User.findOneAndDelete({ _id: req.params.userId });
     
         if (!user) {
             return res.status(404).json({ message: "No user with that ID" });
         }
     
-        await Thoughts.deleteMany({ _id: { $in: user.thoughts } });
+        await User.deleteMany({ _id: { $in: user.thoughts } });
         res.json({ message: "User and associated thoughts deleted!" });
         } catch (err) {
         res.status(500).json(err);
